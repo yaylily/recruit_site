@@ -3,13 +3,14 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import errorHandlerMiddleware from "./middlewares/error-handler.middleware.js";
 import UsersRouter from "./routers/users.router.js";
+import ResumesRouter from "./routers/resumes.router.js";
 
 const app = express();
 const PORT = 3018;
 
 app.use(express.json());
 app.use(cookieParser());
-app.use("/auth", [UsersRouter]);
+app.use("/auth", [UsersRouter, ResumesRouter]);
 app.use(errorHandlerMiddleware);
 
 app.get("/", (req, res) => {
