@@ -84,7 +84,7 @@ router.patch("/resumes/:resumeId", authMiddleware, async (req, res, next) => {
 
   //이력서가 없는 경우
   if (!resume) {
-    return res.status(404).json({ message: "이력서를 찾을 수 없습니다." });
+    return res.status(404).json({ message: "이이력서가 존재하지 않습니다." });
   }
 
   //이력서 부분수정
@@ -94,6 +94,29 @@ router.patch("/resumes/:resumeId", authMiddleware, async (req, res, next) => {
   });
 
   return res.status(200).json({ data: updatedResume });
+});
+
+//---------------------------------이력서 삭제 API----------------------------//
+
+router.delete("/resumes/:resumeId", authMiddleware, async (req, res, next) => {
+  const { resumeId } = req.params;
+  const { userId } = req.user;
+
+  //회원 본인 이력서만 한정
+  const resume = await prisma.resumes.findFirst({
+    where: { resumeId: +resumeId, userId: userId },
+  });
+
+  //이력서가 없는 경우
+  if (!resume) {
+    return res.status(404).json({ message: "이력서가 존재하지 않습니다." });
+  }
+  //이력서 삭제
+  const deleteResume = await prisma.resumes.delete({
+    where: { resumeId: +resumeId },
+  });
+
+  return res.status(204).end();
 });
 
 export default router;
