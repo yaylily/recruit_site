@@ -1,6 +1,7 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import authMiddleware from "../middlewares/require-access-token.middleware.js";
 import { prisma } from "../utils/prisma.util.js";
 
 const router = express.Router();
@@ -57,6 +58,28 @@ router.post("/sign-in", async (req, res, next) => {
 
   res.cookie("authorization", `Bearer ${token}`);
   return res.status(200).json({ message: "로그인에 성공했습니다." });
+});
+
+//----------------------사용자 조회 API----------------------//
+router.get("/users", authMiddleware, async (req, res, next) => {
+  //클라이언트가 로그인된 사용자인지 검증
+  const { userId } = req.user;
+  //사용자 테이블 조회
+  const user = await prisma.users.findFirst({
+    where: { userId: +userId },
+    //특정 컬럼 조회
+    select: {
+      userId: true,
+      email: true,
+      name: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  //사용자 상세정보 반환
+  return res.status(200).json({ data: user });
 });
 
 export default router;
