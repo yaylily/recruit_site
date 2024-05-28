@@ -71,4 +71,29 @@ router.get("/resumes/:resumeId", authMiddleware, async (req, res, next) => {
   return res.status(200).json({ data: resume });
 });
 
+//----------------------------이력서 수정 API----------------------------//
+router.patch("/resumes/:resumeId", authMiddleware, async (req, res, next) => {
+  const { resumeId } = req.params;
+  const { userId } = req.user;
+  const { title, content } = req.body;
+
+  //회원 본인 이력서만 한정
+  const resume = await prisma.resumes.findFirst({
+    where: { resumeId: +resumeId, userId: userId },
+  });
+
+  //이력서가 없는 경우
+  if (!resume) {
+    return res.status(404).json({ message: "이력서를 찾을 수 없습니다." });
+  }
+
+  //이력서 부분수정
+  const updatedResume = await prisma.resumes.update({
+    where: { resumeId: +resumeId },
+    data: { title: title || undefined, content: content || undefined },
+  });
+
+  return res.status(200).json({ data: updatedResume });
+});
+
 export default router;
