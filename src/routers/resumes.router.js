@@ -22,4 +22,31 @@ router.post("/resumes", authMiddleware, async (req, res, next) => {
 
   return res.status(201).json({ data: resume });
 });
+
+//---------------------------이력서 목록 조회 API------------------------------//
+router.get("/resumes", authMiddleware, async (req, res, next) => {
+  const { userId } = req.user;
+  const resumes = await prisma.resumes.findMany({
+    where: {
+      userId: userId,
+    },
+    select: {
+      resumeId: true,
+      title: true,
+      content: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      user: {
+        select: { name: true },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return res.status(200).json({ data: resumes });
+});
+
 export default router;
