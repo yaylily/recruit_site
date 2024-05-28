@@ -14,7 +14,7 @@ export default async function authMiddleware(req, res, next) {
       throw new Error("토큰 타입이 일치하지 않습니다.");
 
     //서버에서 발급한 JWT가 맞는지 검증
-    const decodedToken = jwt.verify(token, "customized_secret_key");
+    const decodedToken = jwt.verify(token, "secretKey");
     const userId = decodedToken.userId;
 
     //JWT의 'userId'를 통해 사용자 조회
